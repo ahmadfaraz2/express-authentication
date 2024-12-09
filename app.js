@@ -74,6 +74,7 @@ app.post("/login", (req, res) => {
 
     User.findOne({email: username}).then( (foundUser) => {
         if (foundUser.password === password){
+            console.log("User authenticated Successfully....");
             res.render("secrets");
         }
     } ).catch( (err) => {

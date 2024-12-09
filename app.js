@@ -50,17 +50,36 @@ app.get("/register", (req, res) => {
 app.post("/register", function(req, res){
     const email = req.body.username;
     const password = req.body.password;
+    console.log(req.body);
 
     const newUser = User({
         email: email,
         password: password
     });
 
-    newUser.save().then(()=>{
-        res.render("secrets");
-    }).catch((err)=>{console.log(err)});
+    newUser.save().then(
+        ()=> {
+            res.render("secrets");
+        } 
+    ).catch( (err)=>{console.log(err)} );
+
 });
 
+
+app.post("/login", (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+    console.log(req.body);
+
+    User.findOne({emai: username}).then( (foundUser) => {
+        if (foundUser.password === password){
+            res.render("secrets");
+        }
+    } ).catch( (err) => {
+        console.log(err);
+    } )
+
+});
 
 
 

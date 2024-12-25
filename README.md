@@ -1,25 +1,26 @@
-# Authentication Level 3
+# Authentication Level 4
 
 ## Previous Problem
 
-In **Authentication Level 2**, we used **encryption** to secure user **passwords** with the `mongoose-encryption` package. However, this approach had a vulnerability: if someone discovered our **encryption key (secret)**, they could easily decrypt the passwords.
+In **Authentication Level 3**, we used **hashing** with the `md5` package to secure user **passwords**. However, this approach had a vulnerability: **MD5** is considered outdated and susceptible to **collision attacks**, making it less secure for password storage.
 
 ## Solution
 
-To address this vulnerability, we use **hashing** with the `md5` package. Hashing is a one-way process that converts a password into a fixed-size string of characters, which is irreversible and therefore provides better security.
+To address this vulnerability, we use **hashing** with the `bcrypt` package. `bcrypt` incorporates salting and is designed to be computationally expensive to deter brute-force attacks, making it a more secure option for password storage.
 
 ### Implementation Steps:
 
-1. **Install the `md5` Package**:
+1. **Install the `bcrypt` Package**:
    ```bash
-   npm install md5
+   npm install bcrypt
    ```
 
 2. **Update the User Schema**:
    Define the user schema without encryption:
    ```javascript
    const mongoose = require('mongoose');
-   const md5 = require('md5');
+   const bcrypt = require('bcrypt');
+   const saltRounds = 10;
 
    const userSchema = new mongoose.Schema({
      email: String,
@@ -30,14 +31,15 @@ To address this vulnerability, we use **hashing** with the `md5` package. Hashin
    ```
 
 3. **User Registration and Login Routes**:
-   Implement the registration and login routes with password hashing:
+   Implement the registration and login routes with password hashing using `bcrypt`:
    ```javascript
    const express = require('express');
    const bodyParser = require('body-parser');
    const mongoose = require('mongoose');
-   const md5 = require('md5');
+   const bcrypt = require('bcrypt');
 
    const app = express();
+   const saltRounds = 10;
 
    app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -55,19 +57,22 @@ To address this vulnerability, we use **hashing** with the `md5` package. Hashin
    // Registration route
    app.post("/register", (req, res) => {
        const email = req.body.username;
-       const password = md5(req.body.password);
+       const plainPassword = req.body.password;
 
-       const newUser = new User({
-           email: email,
-           password: password
-       });
+       bcrypt.hash(plainPassword, saltRounds)
+       .then((hash) => {
+           const newUser = new User({
+               email: email,
+               password: hash,
+           });
 
-       newUser.save().then(
-           () => {
-               console.log("User registered successfully...");
-               res.render("secrets");
-           }
-       ).catch((err) => {
+           return newUser.save();
+       })
+       .then(() => {
+           console.log("User registered successfully...");
+           res.render("secrets");
+       })
+       .catch((err) => {
            console.log(err);
        });
    });
@@ -75,14 +80,30 @@ To address this vulnerability, we use **hashing** with the `md5` package. Hashin
    // Login route
    app.post("/login", (req, res) => {
        const username = req.body.username;
-       const password = md5(req.body.password);
+       const plainPassword = req.body.password;
 
-       User.findOne({ email: username }).then((foundUser) => {
-           if (foundUser.password === password) {
-               console.log("User authenticated successfully...");
-               res.render("secrets");
+       User.findOne({ email: username })
+       .then((foundUser) => {
+           if (foundUser) {
+               bcrypt.compare(plainPassword, foundUser.password)
+               .then((result) => {
+                   if (result === true) {
+                       console.log("User authenticated successfully...");
+                       res.render("secrets");
+                   } else {
+                       console.log("Password mismatch");
+                       res.send("Invalid username or password");
+                   }
+               })
+               .catch((err) => {
+                   console.log(err);
+               });
+           } else {
+               console.log("User not found");
+               res.send("Invalid username or password");
            }
-       }).catch((err) => {
+       })
+       .catch((err) => {
            console.log(err);
        });
    });
@@ -95,20 +116,19 @@ To address this vulnerability, we use **hashing** with the `md5` package. Hashin
 
 ### How It Works
 
-1. **Hashing Passwords**: The `md5` package hashes the password before it is saved to the database during user registration.
+1. **Hashing and Salting Passwords**: The `bcrypt` package hashes and salts the password before it is saved to the database during user registration.
 2. **Authentication**: During login, the password provided by the user is hashed and compared with the hashed password stored in the database.
 
 ### Benefits
 
-- **Irreversible Hashing**: Hashing is a one-way function, making it impossible to retrieve the original password from the hash.
-- **Increased Security**: Prevents attackers from decrypting passwords even if they gain access to the database.
+- **Irreversible Hashing**: Hashing with `bcrypt` ensures that passwords cannot be retrieved from the hash.
+- **Salting**: Adding a unique salt to each password before hashing makes it more resistant to dictionary and rainbow table attacks.
+- **Increased Security**: `bcrypt` is computationally expensive, making it difficult for attackers to perform brute-force attacks.
 
 ### Branch
 
-You can find the implementation for this level in the `auth-level-3` branch.
+You can find the implementation for this level in the `auth-level-4` branch.
 
-**Branch Link**: [Level 3: Hashing Passwords](https://github.com/yourusername/yourrepository/tree/auth-level-3)
+**Branch Link**: [Level 4: Hashing and Salting Passwords with bcrypt](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-4)
 
----
-
-Replace `yourusername` and `yourrepository` with your actual GitHub username and repository name. This README provides a clear and concise guide for implementing password hashing using the `md5` package in the `auth-level-3` branch.
+.

@@ -3,9 +3,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-
-const saltRounds = 10;
+const session = require("express-session"); 
+const passport = require("passport");
+const passportLocalMongoose = require("passport-local-mongoose");
 
 const app = express();
 
@@ -13,11 +13,20 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 
+app.use(session({
+    secret: "Our little secret.",
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 // ------------------------------------------DATABASE Stuff-------------------------------------------
 
 // connect database
-mongoose.connect("mongodb://localhost:27017/userDB")
+mongoose.connect("mongodb://127.0.0.1:27017/userDB")
     .then(() => {console.log("Database Connected....")})
     .catch((e) => {console.log(e)});
 
@@ -28,9 +37,16 @@ const userSchema = new mongoose.Schema({
     password: String,
 });
 
+userSchema.plugin(passportLocalMongoose);
+
 
 // Register a model/Collection
 const User = mongoose.model("User", userSchema);
+
+passport.use(User.createStrategy());
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // -------------------------------------------------------------------------------------------------------
 
@@ -49,48 +65,13 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", function(req, res){
-    const email = req.body.username;
-    const plainPassword = req.body.password;
-
-    bcrypt.hash(plainPassword, saltRounds)
-    .then((hash) => {
-        const newUser = User({
-            email: email,
-            password: hash,
-        });
-
-        return newUser.save();
-    })
-    .then( () => {
-        console.log("User registered successfully...");
-        res.render("secrets");
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+    
 
 });
 
 
 app.post("/login", (req, res) => {
-    const username = req.body.username;
-    const plainPassword = req.body.password;
-
-    User.findOne({email: username}).then((foundUser) => {
-        
-        bcrypt.compare(plainPassword, foundUser.password)
-        .then((result) => {
-            if (result === true) {
-                console.log("User authenticated Successfully....");
-                res.render("secrets");
-            }
-        })
-        .catch((err) => {
-            console.log(err);
-        });
-
-    });
-
+    
 });
 
 

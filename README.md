@@ -1,19 +1,6 @@
-# express-authentication
-In this I'm implementing different level of authentication using express. I have made many branches to demonstrate it. main branch is started point of anyother branch.
+Here's the README file for the main branch, including the problems and solutions of each authentication level (1 to 5) with their respective branch links:
 
-
-### Level 1
-At level 1 we have just Username and password only in plain text.
-
-
-### Level 2 
-At level 2 we have encrypted the password field using mongoose-encryption secret key method.
-
-
-------
-------
-------
-
+---
 
 # Authentication Practice Repository
 
@@ -23,58 +10,89 @@ This repository is designed to practice different levels of authentication in an
 
 ### Level 1: Registering Users with Email and Password
 
-In this level, we implement basic user registration. Users can sign up with their email and password, which are then saved to the database.
+**Problem**:  
+User **passwords** are stored in **plain text**, posing a significant **security risk**. Any **employee** with database access or a **hacker** who breaches the server could easily read the passwords.
 
-**Steps:**
-1. Set up a basic Express server.
-2. Create a user registration route.
-3. Validate the user's email and password.
-4. Save the user's email and password to the database.
+**Solution**:  
+Implement basic user registration where users can sign up with their email and password, which are then saved to the database.
 
-**Problem:**  
-The problem with this approach is that user passwords are stored in plain text. This poses a significant security risk because anyone with access to the database can see the passwords, and if the database is compromised, attackers can easily retrieve and misuse the passwords.
+**Branch**:  
+[Level 1: Registering Users](https://github.com/yourusername/yourrepository/tree/auth-level-1)
 
-**Solution:**  
-Move to Level 2 where we implement database encryption to securely store user passwords.
-
-**Branch:**  
-[Level 1: Registering Users](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-1)
+---
 
 ### Level 2: Database Encryption
 
-In this level, we enhance security by encrypting user passwords before saving them to the database using the `mongoose-encryption` package.
+**Previous Problem**:  
+User **passwords** were stored in **plain text**, posing a significant **security risk**.
 
-**Steps:**
-1. Install the `mongoose-encryption` package:
-   ```bash
-   npm install mongoose-encryption
-   ```
-2. Configure the user schema to use the `mongoose-encryption` plugin:
-   ```javascript
-   const mongoose = require('mongoose');
-   const encrypt = require('mongoose-encryption');
+**Solution**:  
+To secure passwords, we use the `mongoose-encryption` package to encrypt passwords before saving them to the database.
 
-   const userSchema = new mongoose.Schema({
-     email: String,
-     password: String
-   });
+**Steps**:
+1. Install and configure the `mongoose-encryption` package.
+2. Use environment variables to store the encryption key.
+3. Encrypt the password field in the user schema.
 
-   const secret = "Thisisourlittlesecret.";
-   userSchema.plugin(encrypt, { secret: secret, encryptedFields: ['password'] });
+**Branch**:  
+[Level 2: Database Encryption](https://github.com/yourusername/yourrepository/tree/auth-level-2)
 
-   const User = mongoose.model('User', userSchema);
-   ```
-3. Modify the user registration route to save the encrypted password to the database.
+---
 
-**Problem:**  
-Storing passwords in plain text is a security risk. Encryption ensures that even if the database is compromised, the passwords are not easily retrievable.
+### Level 3: Hashing Passwords
 
-**Solution:**  
-Encrypting passwords mitigates the risk of password exposure and enhances the overall security of the application.
+**Previous Problem**:  
+Encryption can be **vulnerable** if someone knows our encryption key (secret), they can **decrypt** it easily.
 
-**Branch:**  
-[Level 2: Database Encryption](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-2)
+**Solution**:  
+Use hashing which is **irreversible** to secure passwords with the `md5` package.
+
+**Steps**:
+1. Install and configure the `md5` package.
+2. Hash the password before saving it to the database.
+
+**Branch**:  
+[Level 3: Hashing Passwords](https://github.com/yourusername/yourrepository/tree/auth-level-3)
+
+---
+
+### Level 4: Hashing and Salting with bcrypt
+
+**Previous Problem**:  
+Using `md5` for hashing is not secure as it is vulnerable to **rainbow table attacks**.
+
+**Solution**:  
+Enhance security by using `bcrypt` for hashing and salting passwords.
+
+**Steps**:
+1. Install and configure the `bcrypt` package.
+2. Hash and salt the password before saving it to the database.
+
+**Branch**:  
+[Level 4: Hashing and Salting with bcrypt](https://github.com/yourusername/yourrepository/tree/auth-level-4)
+
+---
+
+### Level 5: Session Management
+
+**Previous Problem**:  
+Although bcrypt is secure, there is a need to manage user sessions properly to ensure data protection during interactions.
+
+**Solution**:  
+Implement session management using `express-session` and `passport.js`.
+
+**Steps**:
+1. Install and configure `express-session` and `passport`.
+2. Update registration and login routes to use `passport`.
+3. Manage user sessions securely.
+
+**Branch**:  
+[Level 5: Session Management](https://github.com/yourusername/yourrepository/tree/auth-level-5)
 
 ---
 
 Each level's implementation can be found in its respective branch. Start with the main branch for the initial setup and switch to the corresponding branch for each level to see the changes and improvements made.
+
+Replace `yourusername` and `yourrepository` with your actual GitHub username and repository name. Adjust the branch names if they are different. This structure helps users to easily find and understand the different stages of your authentication implementation.
+
+---

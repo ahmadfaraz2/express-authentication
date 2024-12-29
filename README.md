@@ -1,134 +1,106 @@
-# Authentication Level 4
+Here's the updated README file for **Auth Level 5** that includes the code you are using for registration:
 
-## Previous Problem
+---
 
-In **Authentication Level 3**, we used **hashing** with the `md5` package to secure user **passwords**. However, this approach had a vulnerability: **MD5** is considered outdated and susceptible to **collision attacks**, making it less secure for password storage.
+## Authentication Level 5
 
-## Solution
+### Previous Problem
 
-To address this vulnerability, we use **hashing** with the `bcrypt` package. `bcrypt` incorporates salting and is designed to be computationally expensive to deter brute-force attacks, making it a more secure option for password storage.
+In **Auth Level 4**, we improved security by using bcrypt for password hashing and salting. However, we stored the passwords directly in our database after hashing. Although this approach is secure, we can further enhance our application's security by implementing session management to ensure that user sessions are properly handled and protected.
 
-### Implementation Steps:
+### Solution
 
-1. **Install the `bcrypt` Package**:
+In **Auth Level 5**, we introduce session management using `express-session` and `passport.js`. This will help us manage user sessions securely, making sure that user data is protected during their interactions with the application.
+
+#### Implementation Steps:
+
+1. **Install Required Packages**:
    ```bash
-   npm install bcrypt
+   npm install express-session passport passport-local-mongoose
    ```
 
-2. **Update the User Schema**:
-   Define the user schema without encryption:
+2. **Configure Session Management**:
    ```javascript
-   const mongoose = require('mongoose');
-   const bcrypt = require('bcrypt');
-   const saltRounds = 10;
+   const session = require("express-session");
+   const passport = require("passport");
+   const passportLocalMongoose = require("passport-local-mongoose");
 
-   const userSchema = new mongoose.Schema({
-     email: String,
-     password: String
-   });
+   app.use(session({
+       secret: "OurLittleSecret.",
+       resave: false,
+       saveUninitialized: false
+   }));
 
-   const User = mongoose.model('User', userSchema);
+   app.use(passport.initialize());
+   app.use(passport.session());
+
+   userSchema.plugin(passportLocalMongoose);
+
+   const User = mongoose.model("User", userSchema);
+
+   passport.use(User.createStrategy());
+
+   passport.serializeUser(User.serializeUser());
+   passport.deserializeUser(User.deserializeUser());
    ```
 
-3. **User Registration and Login Routes**:
-   Implement the registration and login routes with password hashing using `bcrypt`:
+3. **Update Registration Route**:
    ```javascript
-   const express = require('express');
-   const bodyParser = require('body-parser');
-   const mongoose = require('mongoose');
-   const bcrypt = require('bcrypt');
-
-   const app = express();
-   const saltRounds = 10;
-
-   app.use(bodyParser.urlencoded({ extended: true }));
-
-   // Connect to MongoDB
-   mongoose.connect('mongodb://localhost:27017/userDB', { useNewUrlParser: true, useUnifiedTopology: true });
-
-   // User schema and model configuration
-   const userSchema = new mongoose.Schema({
-     email: String,
-     password: String
-   });
-
-   const User = mongoose.model('User', userSchema);
-
-   // Registration route
-   app.post("/register", (req, res) => {
-       const email = req.body.username;
-       const plainPassword = req.body.password;
-
-       bcrypt.hash(plainPassword, saltRounds)
-       .then((hash) => {
-           const newUser = new User({
-               email: email,
-               password: hash,
-           });
-
-           return newUser.save();
-       })
-       .then(() => {
-           console.log("User registered successfully...");
-           res.render("secrets");
-       })
-       .catch((err) => {
-           console.log(err);
-       });
-   });
-
-   // Login route
-   app.post("/login", (req, res) => {
-       const username = req.body.username;
-       const plainPassword = req.body.password;
-
-       User.findOne({ email: username })
-       .then((foundUser) => {
-           if (foundUser) {
-               bcrypt.compare(plainPassword, foundUser.password)
-               .then((result) => {
-                   if (result === true) {
-                       console.log("User authenticated successfully...");
-                       res.render("secrets");
-                   } else {
-                       console.log("Password mismatch");
-                       res.send("Invalid username or password");
-                   }
-               })
-               .catch((err) => {
-                   console.log(err);
-               });
+   app.post("/register", function(req, res) {
+       User.register({username: req.body.username}, req.body.password, function(err, user) {
+           if (err) {
+               console.log(err);
+               res.redirect("/login");
            } else {
-               console.log("User not found");
-               res.send("Invalid username or password");
+               passport.authenticate("local")(req, res, function() {
+                   res.redirect("/secrets");
+               });
            }
-       })
-       .catch((err) => {
-           console.log(err);
        });
-   });
-
-   // Start the server
-   app.listen(3000, () => {
-       console.log('Server started on port 3000');
    });
    ```
 
-### How It Works
+4. **Update Login Route**:
+   ```javascript
+   app.post("/login", function(req, res) {
+       const user = new User({
+           username: req.body.username,
+           password: req.body.password
+       });
 
-1. **Hashing and Salting Passwords**: The `bcrypt` package hashes and salts the password before it is saved to the database during user registration.
-2. **Authentication**: During login, the password provided by the user is hashed and compared with the hashed password stored in the database.
+       req.login(user, function(err) {
+           if (err) {
+               console.log(err);
+               return res.redirect("/login");
+           }
+           passport.authenticate("local")(req, res, function() {
+               res.redirect("/secrets");
+           });
+       });
+   });
+   ```
 
-### Benefits
+5. **Update Logout Route**:
+   ```javascript
+   app.get("/logout", function(req, res) {
+       req.logout(function(err) {
+           if (err) {
+               return next(err);
+           }
+           res.redirect("/");
+       });
+   });
+   ```
 
-- **Irreversible Hashing**: Hashing with `bcrypt` ensures that passwords cannot be retrieved from the hash.
-- **Salting**: Adding a unique salt to each password before hashing makes it more resistant to dictionary and rainbow table attacks.
-- **Increased Security**: `bcrypt` is computationally expensive, making it difficult for attackers to perform brute-force attacks.
+#### Benefits:
 
-### Branch
+- **Enhanced Security**: By managing user sessions, we ensure that user data is protected during interactions with the application.
+- **User Experience**: Users can log in and out smoothly, with their sessions managed securely.
+- **Scalability**: This approach provides a scalable solution for managing user authentication in more complex applications.
 
-You can find the implementation for this level in the `auth-level-4` branch.
+**Branch**:  
+[Level 5: Session Management](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-5)
 
-**Branch Link**: [Level 4: Hashing and Salting Passwords with bcrypt](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-4)
+---
 
-.
+Each level's implementation can be found in its respective branch. Start with the main branch for the initial setup and switch to the corresponding branch for each level to see the changes and improvements made.

@@ -17,7 +17,7 @@ User **passwords** are stored in **plain text**, posing a significant **security
 Implement basic user registration where users can sign up with their email and password, which are then saved to the database.
 
 **Branch**:  
-[Level 1: Registering Users](https://github.com/yourusername/yourrepository/tree/auth-level-1)
+[Level 1: Registering Users](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-1)
 
 ---
 
@@ -35,7 +35,7 @@ To secure passwords, we use the `mongoose-encryption` package to encrypt passwor
 3. Encrypt the password field in the user schema.
 
 **Branch**:  
-[Level 2: Database Encryption](https://github.com/yourusername/yourrepository/tree/auth-level-2)
+[Level 2: Database Encryption](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-2)
 
 ---
 
@@ -52,7 +52,7 @@ Use hashing which is **irreversible** to secure passwords with the `md5` package
 2. Hash the password before saving it to the database.
 
 **Branch**:  
-[Level 3: Hashing Passwords](https://github.com/yourusername/yourrepository/tree/auth-level-3)
+[Level 3: Hashing Passwords](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-3)
 
 ---
 
@@ -69,7 +69,7 @@ Enhance security by using `bcrypt` for hashing and salting passwords.
 2. Hash and salt the password before saving it to the database.
 
 **Branch**:  
-[Level 4: Hashing and Salting with bcrypt](https://github.com/yourusername/yourrepository/tree/auth-level-4)
+[Level 4: Hashing and Salting with bcrypt](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-4)
 
 ---
 
@@ -87,12 +87,10 @@ Implement session management using `express-session` and `passport.js`.
 3. Manage user sessions securely.
 
 **Branch**:  
-[Level 5: Session Management](https://github.com/yourusername/yourrepository/tree/auth-level-5)
+[Level 5: Session Management](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-5)
 
 ---
 
 Each level's implementation can be found in its respective branch. Start with the main branch for the initial setup and switch to the corresponding branch for each level to see the changes and improvements made.
-
-Replace `yourusername` and `yourrepository` with your actual GitHub username and repository name. Adjust the branch names if they are different. This structure helps users to easily find and understand the different stages of your authentication implementation.
 
 ---

@@ -91,6 +91,40 @@ Implement session management using `express-session` and `passport.js`.
 
 ---
 
+### Level 6: OAuth with Google
+
+**Previous Problem**:  
+Managing passwords can be inconvenient for users and risky for applications, as any exposure of the encryption key can compromise all encrypted data.
+
+**Solution**:  
+To further enhance security and improve user convenience, we integrate OAuth 2.0 for user authentication using Google. This approach allows users to log in with their Google accounts, eliminating the need to handle passwords directly.
+
+**Steps**:
+1. Install and configure the `passport-google-oauth20` package.
+2. Set up Google credentials in the Google Cloud Console.
+3. Configure Passport to use Google OAuth for authentication.
+
+**Setting up Google Cloud Console**:
+1. **Create a New Project**:
+   - Go to the [Google Cloud Console](https://console.cloud.google.com/).
+   - Click on the project dropdown at the top and select "New Project".
+   - Name your project and click "Create".
+2. **Enable the Google+ API**:
+   - In the left sidebar, navigate to "APIs & Services" > "Library".
+   - Search for "Google+ API" and click "Enable".
+3. **Create OAuth Credentials**:
+   - Navigate to "APIs & Services" > "Credentials".
+   - Click "Create Credentials" and select "OAuth 2.0 Client IDs".
+   - Configure the consent screen, then select "Web application".
+   - Add `http://localhost:3000` to the "Authorized JavaScript origins".
+   - Add `http://localhost:3000/auth/google/secrets` to the "Authorized redirect URIs".
+   - Click "Create" and note the `CLIENT_ID` and `CLIENT_SECRET` values.
+
+**Branch**:  
+[Level 6: OAuth with Google](https://github.com/ahmadfaraz2/express-authentication/tree/auth-level-6)
+
+---
+
 Each level's implementation can be found in its respective branch. Start with the main branch for the initial setup and switch to the corresponding branch for each level to see the changes and improvements made.
 
 ---
